@@ -1,8 +1,13 @@
-# jsPatch-server
+# JSPatch-Server
 practice with node.js
 
+##How to use
+### Install packages
+```
+npm install
+```
 
-##MongoDB
+###MongoDB
 ### Test Data
 
 ```
