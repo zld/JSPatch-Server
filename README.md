@@ -11,10 +11,30 @@ npm install
 ### Test Data
 
 ```
-db.relationship.insert({appName: "AAA", platform: "iOS", version: "1.0.0", file: "patch-ios-1.0.0"})
-db.relationship.insert({appName: "AAA", platform: "iOS", version: "2.0.0", file: "patch-ios-1.0.0"})
-db.relationship.insert({appName: "AAA", platform: "Android", version: "1.0.0", file: "patch-android-1.0.0"})
-db.relationship.insert({appName: "BBB", platform: "Android", version: "2.0.0", file: "patch-android-2.0.0"})
+db.relationship.insert({
+    appName: "AAA",
+    platform: "iOS",
+    version: "1.0.0",
+    file: "patch-ios-1.0.0"
+},
+{
+    appName: "AAA",
+    platform: "iOS",
+    version: "2.0.0",
+    file: "patch-ios-1.0.0"
+},
+{
+    appName: "AAA",
+    platform: "Android",
+    version: "1.0.0",
+    file: "patch-android-1.0.0"
+},
+{
+    appName: "BBB",
+    platform: "Android",
+    version: "2.0.0",
+    file: "patch-android-2.0.0"
+})
 ```
 
 ### JS Files
