@@ -22,13 +22,15 @@ var relationshipSchema = mongoose.Schema({
 });
 var Relation = mongoose.model('Relation', relationshipSchema, 'relationship');
 
+// 缓存
 var cacheMap = new Map();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     var deviceType = req.query.deviceType;
     var appVersion = req.query.appVersion;
-    var keyForCache = deviceType+appVersion;
+    var appName = req.query.appName;
+    var keyForCache = deviceType+appVersion+appName;
     // 先从缓存中取
     var data = cacheMap.get(keyForCache);
     if (data) {
@@ -37,7 +39,7 @@ router.get('/', function(req, res, next) {
         return;
     }
     // 缓存中没有,从数据库中查找
-    Relation.find({platform: deviceType, version: appVersion}, function(err, items) {
+    Relation.find({platform: deviceType, version: appVersion, appName: appName}, function(err, items) {
         if (items.length > 0) {
             var item = items[0];
             var filename = item.file;
@@ -49,7 +51,7 @@ router.get('/', function(req, res, next) {
                 }
                 // 加入缓存
                 console.log('cache data: \n', data);
-                cacheMap.set(keyForCache+appVersion, data);
+                cacheMap.set(keyForCache+appVersion+appName, data);
                 res.status(200).send(data);
                 return;
             });
