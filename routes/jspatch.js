@@ -39,7 +39,9 @@ router.get('/', function(req, res, next) {
         return;
     }
     // 缓存中没有,从数据库中查找
-    Relation.find({platform: deviceType, version: appVersion, appName: appName}, function(err, items) {
+    //noinspection JSAnnotator
+    var deviceTypeReg = new RegExp(["^", deviceType, "$"].join(""), "i");;
+    Relation.find({platform: deviceTypeReg, version: appVersion, appName: appName}, function(err, items) {
         if (items.length > 0) {
             var item = items[0];
             var filename = item.file;
