@@ -41,12 +41,16 @@ db.relationship.insert({
 
 Put JS files into `jsfiles` folder
 
-###Request with URL
+### Security
+
+
+
+### Request with URL
 
 Params | Type | Description 
 ------ | ---- | --------------
 appName | String | name of App 
-deviceType | String | iOS or Android 
+deviceType | String | iOS or Android (case-insensitive)
 appVersion | String | version of App
 
 ```

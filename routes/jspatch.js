@@ -6,6 +6,7 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var path = require('path');
+var crypto = require('crypto');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/jspatch');
 var db = mongoose.connection;
@@ -23,7 +24,12 @@ var relationshipSchema = mongoose.Schema({
 var Relation = mongoose.model('Relation', relationshipSchema, 'relationship');
 
 // 缓存
+// {"iOS+2.0.0+hfs": fileData1,
+//  "Android+1.0.0+yx": fileData2}
 var cacheMap = new Map();
+
+var privatePem = fs.readFileSync(path.dirname()+'/pemfiles/server.pem');
+var key = privatePem.toString();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -40,21 +46,28 @@ router.get('/', function(req, res, next) {
     }
     // 缓存中没有,从数据库中查找
     //noinspection JSAnnotator
-    var deviceTypeReg = new RegExp(["^", deviceType, "$"].join(""), "i");;
+    var deviceTypeReg = new RegExp(["^", deviceType, "$"].join(""), "i");
     Relation.find({platform: deviceTypeReg, version: appVersion, appName: appName}, function(err, items) {
         if (items.length > 0) {
             var item = items[0];
             var filename = item.file;
-            fs.readFile(path.dirname()+'/jsfiles/'+filename+'.js', 'utf8', function (err,data) {
+            fs.readFile(path.dirname()+'/jsfiles/'+filename, 'utf8', function (err,data) {
                 if (err) {
                     // 访问出错返回空字符串
                     res.status(200).send("");
                     return console.log(err);
                 }
+
+                var sign = crypto.createSign('RSA-SHA256');
+                var md5data = crypto.createHash('md5').update(data).digest('hex');
+                sign.update(md5data);
+                var sig = sign.sign(key, 'hex');
+                var responseData = {'sig': sig, 'data': data};
+
                 // 加入缓存
-                console.log('cache data: \n', data);
-                cacheMap.set(keyForCache+appVersion+appName, data);
-                res.status(200).send(data);
+                console.log('cache data: \n', responseData);
+                cacheMap.set(keyForCache, responseData);
+                res.status(200).send(responseData);
                 return;
             });
         } else {
@@ -70,6 +83,8 @@ router.post('/', function (req, res, next) {
 
     if (req.query.refresh == 1) {
         cacheMap.clear();
+        privatePem = fs.readFileSync(path.dirname()+'/pemfiles/server.pem');
+        key = privatePem.toString();
         res.status(200).send("Refresh Succeed");
     } else {
         res.status(200).send("");
